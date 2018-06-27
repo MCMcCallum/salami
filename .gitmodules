@@ -1,0 +1,6 @@
+[submodule "SALAMI"]
+	path = SALAMI
+	url = https://github.com/DDMAL/SALAMI.git
+[submodule "salami-data-public"]
+	path = salami-data-public
+	url = https://github.com/DDMAL/salami-data-public.git
