@@ -19,14 +19,19 @@ def hit_rate(truth, estimate, tolerance):
     For example, for time boundaries in the SALAMI dataset.
 
     Args:
-        truth -> list(float) - The set of ground truth time points that are to be estimated.
-        This can be provided in any order.
+        truth -> list(list(float)) - The set of ground truth time points that are to be estimated for
+        a range of tracks. Each track is a top level element, and the boundaries are the lists within
+        the list. The track order must match the "estimate" arg. But the boundaries can be provided in 
+        any order.
         
         estimate -> list(float) - The set of estimated time points that are intended to be estimates
-        of the values in "truth". This can be provided in any order.
+        of the values in "truth". Each track is a top level element, and the boundaries are the lists within
+        the list. The track order must match the "truth" arg. But the boundaries can be provided in 
+        any order.
 
         tolerance -> float - A positive value providing the accepted absolute distance between a
-        value in truth and estimate, for the value in estimate to be considered correct.
+        boundary value for a given track in truth and estimate, for the value in estimate to be considered 
+        correct.
 
     Return:
         precision -> float - The precision of the provided estimates.
@@ -35,13 +40,26 @@ def hit_rate(truth, estimate, tolerance):
 
         f_measure -> float - The F-measure of the provided estimates.
     """
-    num_ests = len(estimate)
-    num_boundaries = len(truth)
-    correct_ests = 0
-    for est_boundary in estimate:
-        if any([abs(est_boundary-true_boundary)<=tolerance for true_boundary in truth]):
-            correct_ests += 1
-    precision = correct_ests/num_ests
-    recall = correct_ests/num_boundaries
-    f_measure = precision*recall/(precision+recall)
+    est_hits = 0
+    boundary_hits = 0
+    tot_num_ests = 0
+    tot_num_boundaries = 0
+    for track_boundaries, est_boundaries in zip(truth, estimate):
+        num_ests = len(est_boundaries)
+        num_boundaries = len(track_boundaries)
+        est_hits = [False]*num_ests
+        truth_hits = [False]*num_boundaries
+        correct_ests = 0
+        for est_idx, est_boundary in enumerate(est_boundaries):
+            for truth_idx, boundary in enumerate(track_boundaries):
+                if abs(est_boundary-boundary) <= tolerance:
+                    est_hits[est_idx] = True
+                    truth_hits[truth_idx] = True
+        est_hits = sum(est_hits)
+        boundary_hits = sum(truth_hits)
+        tot_num_ests += num_ests
+        tot_num_boundaries += num_boundaries
+    precision = est_hits/tot_num_ests
+    recall = boundary_hits/tot_num_boundaries
+    f_measure = precision*recall/(precision + recall)
     return precision, recall, f_measure
