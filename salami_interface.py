@@ -25,7 +25,11 @@ class SalamiInterface(object):
         """
         Constructor.
         """
-        self._audio_files = dir_funcs.get_filenames(config.AUDIO_DIR, ['.mp3', '.wav'])
+        # Get all mp3, wav and pkl files.
+        self._audio_files = dir_funcs.get_filenames(config.AUDIO_DIR, ['.mp3', '.wav', '.pkl']) # <= Note that if there are pickled object files in this directory
+                                                                                                #    they are assumed to be pickled features of the desired audio files
+        # Select only the files that have a numeric SALAMI ID as the filename
+        self._audio_files = [fname for fname in self._audio_files if os.path.splitext(os.path.basename(fname))[0].isdigit()]
 
     def GetIDsWithAudio(self):
         """
