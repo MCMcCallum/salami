@@ -127,5 +127,5 @@ class Annotation(object):
         with open(path, 'r') as f:
             f_reader = csv.reader(f, delimiter='\t')
             for line in f_reader:
-                segments += [(line[0], line[1])]
+                segments += [(float(line[0]), line[1])]
         return segments
